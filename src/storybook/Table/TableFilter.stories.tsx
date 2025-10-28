@@ -194,13 +194,7 @@ export const DefaultClientFilter: Story = {
 
         <FilterForm onSubmit={handleSubmit} />
 
-        <Table
-          data={mockData}
-          columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-          filter={filterData}
-        />
+        <Table data={mockData} columns={basicColumns} filter={filterData} />
       </div>
     )
   },
@@ -278,12 +272,7 @@ export const ServerFilter: Story = {
 
         <FilterForm onSubmit={handleSubmit} />
 
-        <Table
-          data={data}
-          columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-        />
+        <Table data={data} columns={basicColumns} />
       </div>
     )
   },

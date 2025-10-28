@@ -2,6 +2,7 @@ import { flexRender } from '@tanstack/react-table'
 import { StyledTFoot, StyledTR, StyledTH } from './StyledTable'
 import { useTableContext } from './useTableContext'
 import { getCommonPinningStyles } from './Table.config'
+import { memo } from 'react'
 
 const TableFoot = <TData,>() => {
   const { table, border } = useTableContext<TData>()
@@ -34,4 +35,4 @@ const TableFoot = <TData,>() => {
   )
 }
 
-export default TableFoot
+export default memo(TableFoot)

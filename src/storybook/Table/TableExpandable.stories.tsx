@@ -171,8 +171,6 @@ export const ExpandableTableWithPagination: Story = {
         <Table
           data={mockData}
           columns={expandableColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           expandable={{
             getSubRows: originalRow => originalRow.subRows,
           }}
@@ -212,18 +210,17 @@ export const ExpandableTableWithServerPagination: Story = {
           expandable={{
             getSubRows: originalRow => originalRow.subRows,
           }}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            onPageChange: page => setPage(page),
+            onPageSizeChange: pageSize => {
+              setPageSize(pageSize)
+              setPage(1)
+            },
+          }}
         />
       </div>
     )
@@ -250,8 +247,6 @@ export const ExpandableTableWithPinnedColumns: Story = {
         <Table
           data={mockData}
           columns={expandableColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           expandable={{
             getSubRows: originalRow => originalRow.subRows,
           }}
@@ -294,8 +289,6 @@ export const ExpandableTableWithFooter: Story = {
           data={mockData}
           columns={columnsWithFooter}
           footer={true}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           expandable={{
             getSubRows: originalRow => originalRow.subRows,
           }}
@@ -334,8 +327,6 @@ export const CustomExpandedContent: Story = {
         <Table
           data={mockData}
           columns={expandableColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           expandable={{
             getRowCanExpand: () => true,
             renderExpanded: ({ row }) => (
@@ -400,8 +391,6 @@ export const CustomExpandedWithProgressBar: Story = {
         <Table
           data={mockData}
           columns={expandableColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           columnPinning={{ right: ['status'] }}
           expandable={{
             getRowCanExpand: () => true,
@@ -494,8 +483,6 @@ export const CustomExpandedWithActions: Story = {
         <Table
           data={mockData}
           columns={expandableColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           expandable={{
             getRowCanExpand: () => true,
             renderExpanded: ({ row }) => (
@@ -630,8 +617,6 @@ export const CustomExpandedWithNestedTable: Story = {
         <Table
           data={mockData}
           columns={expandableColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 5 }}
           expandable={{
             getRowCanExpand: () => true,
             renderExpanded: ({ row }) => (

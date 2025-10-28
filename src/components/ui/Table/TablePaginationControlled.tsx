@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@ui/Select'
 
-interface TablePaginationProps {
+export interface TablePaginationControlledProps {
   page: number
   total: number
   pageSize: number
@@ -42,7 +42,7 @@ const TablePaginationControlled = ({
   showItemsInfo = true,
   onPageChange,
   onPageSizeChange,
-}: TablePaginationProps) => {
+}: TablePaginationControlledProps) => {
   const [goToPageInput, setGoToPageInput] = useState('')
 
   const currentPage = page

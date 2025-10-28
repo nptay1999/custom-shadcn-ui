@@ -2,7 +2,7 @@ import { flexRender } from '@tanstack/react-table'
 import { StyledTBody, StyledTR, StyledTD } from './StyledTable'
 import { useTableContext } from './useTableContext'
 import { getCommonPinningStyles } from './Table.config'
-import { Fragment } from 'react'
+import { Fragment, memo } from 'react'
 
 const TableBody = <TData,>() => {
   const { table, border, renderExpanded } = useTableContext<TData>()
@@ -51,4 +51,4 @@ const TableBody = <TData,>() => {
   )
 }
 
-export default TableBody
+export default memo(TableBody)

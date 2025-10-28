@@ -13,8 +13,8 @@ import {
   type Table,
   type TableOptions,
 } from '@tanstack/react-table'
-import { isValidElement, useImperativeHandle, useMemo, useState } from 'react'
-import { StyledTable } from './StyledTable'
+import { useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { StyledTable, StyledTableContainer } from './StyledTable'
 import cn from '@/utils/cn'
 import TablePagination, { type TablePaginationProps } from './TablePagination'
 import TableHead from './TableHead'
@@ -26,10 +26,25 @@ import TableSkeleton from './TableSkeleton'
 import { css } from '@emotion/css'
 import isEmpty from 'lodash-es/isEmpty'
 import omit from 'lodash-es/omit'
+import get from 'lodash-es/get'
+import TableBodyVirtualized from './TableBodyVirtualized'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import type { TablePaginationControlledProps } from './TablePaginationControlled'
+import TablePaginationControlled from './TablePaginationControlled'
 
 type TPaginationState = {
   page: number
   pageSize: number
+}
+
+type TUncontrolledPaginationProps = Omit<TablePaginationProps, 'table'> & {
+  type?: 'uncontrolled'
+  page: number
+  pageSize: number
+}
+
+type TControlledPaginationProps = TablePaginationControlledProps & {
+  type?: 'controlled'
 }
 
 type TExpandable<TData> = {
@@ -52,20 +67,19 @@ export interface TableProps<TData extends RowData, TValue = unknown> {
   footer?: boolean | ((table: Table<TData>) => React.ReactNode)
   border?: boolean
   /**
-   * If false (default) no pagination is rendered.
-   * If true the table will render default pagination controls.
-   * If a function is provided it will be called with the table instance
-   * and should return a ReactNode to render as the pagination area.
+   * If false, no pagination is rendered.
+   * If an object is provided, the table will render pagination controls.
+   * Supports both uncontrolled and controlled pagination modes.
    */
-  pagination?:
-    | boolean
+  pagination?: false | TUncontrolledPaginationProps | TControlledPaginationProps
+  renderPagination?:
     | ((table: Table<TData>) => React.ReactNode)
     | React.ReactNode
-  paginationProps?: TPaginationState & Omit<TablePaginationProps, 'table'>
   onPaginationChange?: (pagination: TPaginationState) => void
   filter?: boolean | ColumnFiltersState
   columnPinning?: ColumnPinningState
   expandable?: TExpandable<TData>
+  virtualized?: boolean
 }
 
 const TableComponent = <TData extends RowData>({
@@ -75,20 +89,32 @@ const TableComponent = <TData extends RowData>({
   loading = false,
   footer = false,
   border = true,
-  pagination = false,
-  paginationProps = { page: 1, pageSize: 10 },
+  pagination = { type: 'uncontrolled', page: 1, pageSize: 10 },
+  renderPagination,
   onPaginationChange,
   filter = false,
   columnPinning = undefined,
   expandable,
+  virtualized = false,
 }: TableProps<TData>) => {
   // Props preprocessing
-  const { page, pageSize, ...uncontrolledPaginationProps } = paginationProps
+  const isNoPagination = pagination === undefined || pagination === false
+  const paginationType = get(pagination, 'type', 'uncontrolled')
+  const page = get(pagination, 'page', 1)
+  const pageSize = get(pagination, 'pageSize', 10)
+  const controlledPaginationProps = omit(pagination || {}, [
+    'type',
+  ]) as TablePaginationControlledProps
+  const uncontrolledPaginationProps = omit(controlledPaginationProps, [
+    'page',
+    'pageSize',
+  ]) as TablePaginationProps
 
   // State Management
   const [internalPagination, setInternalPagination] = useState<PaginationState>(
     { pageIndex: page - 1, pageSize }
   )
+  const tableContainerRef = useRef<HTMLDivElement>(null)
 
   // Functions
   const handlePaginationChange = (
@@ -120,27 +146,25 @@ const TableComponent = <TData extends RowData>({
   }, [filter])
 
   const paginationConfig: Partial<TableOptions<TData>> = useMemo(() => {
-    if (pagination === true) {
-      return {
-        getPaginationRowModel: getPaginationRowModel(),
-        manualPagination: false,
-        state: { pagination: internalPagination },
-        onPaginationChange: handlePaginationChange,
-      }
-    }
+    // Check if pagination should be managed manually
+    const shouldUseManualPagination =
+      isNoPagination || paginationType === 'controlled' || !!renderPagination
 
-    if (typeof pagination === 'function' || isValidElement(pagination)) {
+    if (shouldUseManualPagination) {
       return {
         getPaginationRowModel: undefined,
         manualPagination: true,
       }
     }
 
+    // Use uncontrolled pagination with automatic row model
     return {
-      getPaginationRowModel: undefined,
-      manualPagination: undefined,
+      getPaginationRowModel: getPaginationRowModel(),
+      manualPagination: false,
+      state: { pagination: internalPagination },
+      onPaginationChange: handlePaginationChange,
     }
-  }, [pagination, internalPagination])
+  }, [isNoPagination, paginationType, renderPagination, internalPagination])
 
   const columnPinningConfig: Partial<TableOptions<TData>> = useMemo(() => {
     if (!columnPinning) return {}
@@ -176,6 +200,19 @@ const TableComponent = <TData extends RowData>({
     },
   })
 
+  const rowVirtualizer = useVirtualizer({
+    count: table?.getRowModel().rows.length || 0,
+    getScrollElement: () =>
+      tableContainerRef ? tableContainerRef.current : null,
+    estimateSize: () => 48,
+    measureElement:
+      typeof window !== 'undefined' &&
+      navigator.userAgent.indexOf('Firefox') === -1
+        ? element => element?.getBoundingClientRect().height
+        : undefined,
+    overscan: 5,
+  })
+
   // Expose the table instance through the ref
   useImperativeHandle(ref, () => table, [table])
 
@@ -193,41 +230,58 @@ const TableComponent = <TData extends RowData>({
           'border border-border': border,
         })}
       >
-        <StyledTable
-          className={cn({
-            [css`
-              min-width: ${table.getTotalSize()}px;
-            `]: !isEmpty(columnPinningConfig),
-          })}
+        <StyledTableContainer
+          ref={tableContainerRef}
+          className={cn({ 'relative h-[800px]': virtualized })}
         >
-          {/** Table Header */}
-          <TableHead />
+          <StyledTable
+            className={cn(
+              !isEmpty(columnPinningConfig) ||
+                (virtualized &&
+                  css`
+                    min-width: ${table.getTotalSize()}px;
+                  `)
+            )}
+          >
+            {/** Table Header */}
+            <TableHead className={cn({ 'sticky top-0 z-1': virtualized })} />
 
-          {/** Table body */}
-          {loading ? (
-            <TableSkeleton />
-          ) : hasData ? (
-            <TableBody />
-          ) : (
-            <TableEmpty />
-          )}
+            {/** Table body */}
+            {loading ? (
+              <TableSkeleton />
+            ) : hasData ? (
+              virtualized ? (
+                <TableBodyVirtualized rowVirtualizer={rowVirtualizer} />
+              ) : (
+                <TableBody />
+              )
+            ) : (
+              <TableEmpty />
+            )}
 
-          {/** Table footer */}
-          {typeof footer === 'function'
-            ? footer(table)
-            : footer && <TableFoot />}
-        </StyledTable>
+            {/** Table footer */}
+            {typeof footer === 'function'
+              ? footer(table)
+              : footer && <TableFoot />}
+          </StyledTable>
+        </StyledTableContainer>
       </div>
 
       {/** Pagination */}
-      {pagination && hasData && (
+      {!isNoPagination && hasData && (
         <>
-          {typeof pagination === 'function' ? (
-            pagination(table)
-          ) : isValidElement(pagination) ? (
-            pagination
-          ) : (
+          {renderPagination ? (
+            // Custom pagination rendering
+            typeof renderPagination === 'function' ? (
+              renderPagination(table)
+            ) : (
+              renderPagination
+            )
+          ) : // Default pagination components
+          paginationType === 'uncontrolled' ? (
             <TablePagination {...uncontrolledPaginationProps} />
+          ) : (
+            <TablePaginationControlled {...controlledPaginationProps} />
           )}
         </>
       )}

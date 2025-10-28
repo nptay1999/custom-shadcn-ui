@@ -2,6 +2,7 @@ import { InboxIcon } from 'lucide-react'
 import Empty, { EmptyHeader, EmptyMedia, EmptyTitle } from '../Empty'
 import { StyledTBody, StyledTD, StyledTR } from './StyledTable'
 import { useTableContext } from './useTableContext'
+import { memo } from 'react'
 
 const TableEmpty = <TData,>() => {
   const { table } = useTableContext<TData>()
@@ -25,4 +26,4 @@ const TableEmpty = <TData,>() => {
   )
 }
 
-export default TableEmpty
+export default memo(TableEmpty)

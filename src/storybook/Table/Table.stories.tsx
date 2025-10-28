@@ -180,7 +180,7 @@ export const DefaultTable: Story = {
             items).
           </p>
         </div>
-        <Table data={mockData} columns={basicColumns} />
+        <Table data={mockData} columns={basicColumns} pagination={false} />
       </div>
     )
   },
@@ -200,12 +200,7 @@ export const TableWithGroupedColumns: Story = {
             Demonstrates column grouping with hierarchical headers.
           </p>
         </div>
-        <Table
-          data={mockData}
-          columns={groupedColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-        />
+        <Table data={mockData} columns={groupedColumns} />
       </div>
     )
   },
@@ -223,13 +218,7 @@ export const TableWithFooter: Story = {
             Table displaying footer row with column information.
           </p>
         </div>
-        <Table
-          data={mockData}
-          columns={groupedColumns}
-          footer={true}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-        />
+        <Table data={mockData} columns={groupedColumns} footer={true} />
       </div>
     )
   },
@@ -245,7 +234,7 @@ export const EmptyTable: Story = {
             Displays an empty state when there's no data.
           </p>
         </div>
-        <Table data={[]} columns={basicColumns} pagination={false} />
+        <Table data={[]} columns={basicColumns} />
       </div>
     )
   },
@@ -265,14 +254,7 @@ export const TableWithoutBorder: Story = {
             Remove outer border by setting border prop to false.
           </p>
         </div>
-        <Table
-          data={mockData}
-          columns={basicColumns}
-          border={false}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-          footer
-        />
+        <Table data={mockData} columns={basicColumns} border={false} footer />
       </div>
     )
   },
@@ -316,8 +298,6 @@ export const TableLoading: Story = {
         <Table
           data={mockData}
           columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           onPaginationChange={() => fetchData()}
           loading={isLoading}
         />
@@ -357,8 +337,6 @@ export const TablePinningColumns: Story = {
         <Table
           data={mockData}
           columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
           onPaginationChange={() => fetchData()}
           loading={isLoading}
           columnPinning={{
@@ -398,13 +376,7 @@ export const TableUsingRef: Story = {
             </button>
           </p>
         </div>
-        <Table
-          ref={tableRef}
-          data={mockData}
-          columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-        />
+        <Table ref={tableRef} data={mockData} columns={basicColumns} />
       </div>
     )
   },

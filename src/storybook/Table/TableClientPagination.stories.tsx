@@ -144,12 +144,14 @@ export const DefaultPagination: Story = {
             selector, and item count display.
           </p>
         </div>
-        <Table
-          data={mockData}
-          columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10 }}
-        />
+        <Table data={mockData} columns={basicColumns} />
+
+        <div className="mt-4 text-sm italic text-muted-foreground">
+          Code snippet:
+        </div>
+        <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+          {'<Table data={mockData} columns={basicColumns} />'}
+        </code>
       </div>
     )
   },
@@ -171,6 +173,15 @@ export const WithoutPagination: Story = {
           </p>
         </div>
         <Table data={mockData} columns={basicColumns} pagination={false} />
+
+        <div className="mt-4 text-sm italic text-muted-foreground">
+          Code snippet:
+        </div>
+        <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+          {
+            '<Table data={mockData} columns={basicColumns} pagination={false} />'
+          }
+        </code>
       </div>
     )
   },
@@ -194,9 +205,29 @@ export const PaginationWithoutJumpingToPage: Story = {
         <Table
           data={mockData}
           columns={groupedColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 10, showGoToPage: false }}
+          pagination={{
+            type: 'uncontrolled',
+            page: 1,
+            pageSize: 10,
+            showGoToPage: false,
+          }}
         />
+
+        <div className="mt-4 text-sm italic text-muted-foreground">
+          Code snippet:
+        </div>
+        <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+          {`<Table
+              data={mockData}
+              columns={groupedColumns}
+              pagination={{
+                type: 'uncontrolled',
+                page: 1,
+                pageSize: 10,
+                showGoToPage: false,
+              }}
+            />`}
+        </code>
       </div>
     )
   },
@@ -220,13 +251,29 @@ export const PaginationWithoutPageSizeSelector: Story = {
         <Table
           data={mockData}
           columns={groupedColumns}
-          pagination={true}
-          paginationProps={{
+          pagination={{
+            type: 'uncontrolled',
             page: 1,
             pageSize: 10,
             showPageSizeSelector: false,
           }}
         />
+
+        <div className="mt-4 text-sm italic text-muted-foreground">
+          Code snippet:
+        </div>
+        <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+          {`<Table
+              data={mockData}
+              columns={groupedColumns}
+              pagination={{
+                type: 'uncontrolled',
+                page: 1,
+                pageSize: 10,
+                showPageSizeSelector: false,
+              }}
+            />`}
+        </code>
       </div>
     )
   },
@@ -251,66 +298,12 @@ export const PaginationSmallPageSize: Story = {
         <Table
           data={mockData}
           columns={basicColumns}
-          pagination={true}
-          paginationProps={{
+          pagination={{
+            type: 'uncontrolled',
             page: 1,
             pageSize: 5,
             pageSizeOptions: [5, 10, 25],
           }}
-        />
-      </div>
-    )
-  },
-}
-
-export const PaginationMediumPageSize: Story = {
-  render: () => {
-    const [mockData] = useState<TUserRecord[]>(generateMockUsers(100))
-
-    return (
-      <div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">
-            Medium Page Size (25 items)
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Table with 25 items per page.
-          </p>
-        </div>
-        <Table
-          data={mockData}
-          columns={basicColumns}
-          pagination={true}
-          paginationProps={{
-            page: 1,
-            pageSize: 25,
-            pageSizeOptions: [5, 10, 25, 50],
-          }}
-        />
-      </div>
-    )
-  },
-}
-
-export const PaginationLargePageSize: Story = {
-  render: () => {
-    const [mockData] = useState<TUserRecord[]>(generateMockUsers(200))
-
-    return (
-      <div>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">
-            Large Page Size (50 items)
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Table with 50 items per page.
-          </p>
-        </div>
-        <Table
-          data={mockData}
-          columns={basicColumns}
-          pagination={true}
-          paginationProps={{ page: 1, pageSize: 50 }}
         />
       </div>
     )
@@ -336,10 +329,10 @@ export const PaginationCustomPageSizeOptions: Story = {
         <Table
           data={mockData}
           columns={basicColumns}
-          pagination={true}
-          paginationProps={{
+          pagination={{
+            type: 'uncontrolled',
             page: 1,
-            pageSize: 10,
+            pageSize: 5,
             pageSizeOptions: [5, 10, 25, 50, 100],
           }}
         />
@@ -363,8 +356,8 @@ export const MinimalPagination: Story = {
         <Table
           data={mockData}
           columns={basicColumns}
-          pagination={true}
-          paginationProps={{
+          pagination={{
+            type: 'uncontrolled',
             page: 1,
             pageSize: 10,
             showGoToPage: false,
@@ -394,9 +387,9 @@ export const PaginationWithInitialPage: Story = {
         <Table
           data={mockData}
           columns={basicColumns}
-          pagination={true}
-          paginationProps={{
-            page: 2, // 0-indexed, so page 3
+          pagination={{
+            type: 'uncontrolled',
+            page: 2,
             pageSize: 10,
           }}
         />

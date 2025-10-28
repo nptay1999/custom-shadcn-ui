@@ -2,12 +2,18 @@ import { flexRender } from '@tanstack/react-table'
 import { StyledTHead, StyledTR, StyledTH } from './StyledTable'
 import { useTableContext } from './useTableContext'
 import { getCommonPinningStyles } from './Table.config'
+import { memo } from 'react'
 
-const TableHead = <TData,>() => {
+// @ts-ignore
+interface TableHeadProps<TData> {
+  className?: string
+}
+
+const TableHead = <TData,>({ className }: TableHeadProps<TData>) => {
   const { table, border } = useTableContext<TData>()
 
   return (
-    <StyledTHead border={border}>
+    <StyledTHead border={border} className={className}>
       {table?.getHeaderGroups().map(headerGroup => {
         return (
           <StyledTR key={headerGroup.id} border={border}>
@@ -34,4 +40,4 @@ const TableHead = <TData,>() => {
   )
 }
 
-export default TableHead
+export default memo(TableHead)

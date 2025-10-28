@@ -2,23 +2,45 @@ import React from 'react'
 import cn from '@/utils/cn'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-interface StyledTableProps extends React.ComponentProps<'table'> {
-  ref?: React.Ref<HTMLTableElement>
+interface StyledTableContainerProps extends React.ComponentProps<'div'> {
+  ref?: React.Ref<HTMLDivElement>
 }
 
-const StyledTable = ({ className, ref, ...props }: StyledTableProps) => {
+const StyledTableContainer = ({
+  className,
+  ref,
+  ...props
+}: StyledTableContainerProps) => {
   return (
     <div
+      ref={ref}
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
-    >
-      <table
-        ref={ref}
-        data-slot="table"
-        className={cn('w-full caption-bottom text-sm', className)}
-        {...props}
-      />
-    </div>
+      className={cn('relative w-full overflow-auto', className)}
+      {...props}
+    />
+  )
+}
+
+interface StyledTableProps extends React.ComponentProps<'table'> {
+  ref?: React.Ref<HTMLTableElement>
+  containerRef?: React.Ref<HTMLDivElement>
+  containerClassName?: string
+}
+
+const StyledTable = ({
+  className,
+  ref,
+  containerRef,
+  containerClassName,
+  ...props
+}: StyledTableProps) => {
+  return (
+    <table
+      ref={ref}
+      data-slot="table"
+      className={cn('w-full caption-bottom text-sm', className)}
+      {...props}
+    />
   )
 }
 
@@ -190,7 +212,7 @@ const styledTHVariant = tv({
   base: 'h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
   variants: {
     variant: {
-      default: 'text-foreground bg-muted/60',
+      default: 'text-foreground bg-muted',
     },
     border: {
       true: 'border-r border-r-border last:border-r-0',
@@ -307,6 +329,7 @@ const StyledTCaption = ({
 }
 
 export type {
+  StyledTableContainerProps,
   StyledTableProps,
   StyledTHeadProps,
   StyledTBodyProps,
@@ -318,6 +341,7 @@ export type {
 }
 
 export {
+  StyledTableContainer,
   StyledTable,
   StyledTHead,
   StyledTBody,

@@ -152,18 +152,17 @@ export const DefaultPagination: Story = {
         <Table
           data={data}
           columns={basicColumns}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            onPageChange: page => setPage(page),
+            onPageSizeChange: pageSize => {
+              setPageSize(pageSize)
+              setPage(1)
+            },
+          }}
         />
       </div>
     )
@@ -195,19 +194,18 @@ export const PaginationWithoutJumpingToPage: Story = {
         <Table
           data={data}
           columns={groupedColumns}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              showGoToPage={false}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            showGoToPage: false,
+            onPageChange: page => setPage(page),
+            onPageSizeChange: pageSize => {
+              setPageSize(pageSize)
+              setPage(1)
+            },
+          }}
         />
       </div>
     )
@@ -218,7 +216,7 @@ export const PaginationWithoutPageSizeSelector: Story = {
   render: () => {
     const [mockData] = useState<TUserRecord[]>(generateMockUsers(50))
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+    const [pageSize] = useState(10)
 
     const data = useMemo(
       () => mockData.slice((page - 1) * pageSize, page * pageSize),
@@ -239,19 +237,14 @@ export const PaginationWithoutPageSizeSelector: Story = {
         <Table
           data={data}
           columns={groupedColumns}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              showGoToPage={false}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            showPageSizeSelector: false,
+            onPageChange: page => setPage(page),
+          }}
         />
       </div>
     )
@@ -284,19 +277,18 @@ export const PaginationCustomPageSizeOptions: Story = {
         <Table
           data={data}
           columns={basicColumns}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              pageSizeOptions={[5, 10, 25, 50, 100]}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            pageSizeOptions: [5, 10, 25, 50, 100],
+            onPageChange: page => setPage(page),
+            onPageSizeChange: pageSize => {
+              setPageSize(pageSize)
+              setPage(1)
+            },
+          }}
         />
       </div>
     )
@@ -307,7 +299,7 @@ export const MinimalPagination: Story = {
   render: () => {
     const [mockData] = useState<TUserRecord[]>(generateMockUsers(100))
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+    const [pageSize] = useState(10)
 
     const data = useMemo(
       () => mockData.slice((page - 1) * pageSize, page * pageSize),
@@ -325,22 +317,16 @@ export const MinimalPagination: Story = {
         <Table
           data={data}
           columns={basicColumns}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              pageSizeOptions={[5, 10, 25, 50, 100]}
-              showGoToPage={false}
-              showItemsInfo={false}
-              showPageSizeSelector={false}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            showGoToPage: false,
+            showItemsInfo: false,
+            showPageSizeSelector: false,
+            onPageChange: page => setPage(page),
+          }}
         />
       </div>
     )
@@ -371,19 +357,18 @@ export const PaginationWithInitialPage: Story = {
         <Table
           data={data}
           columns={basicColumns}
-          pagination={
-            <Table.TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={mockData.length}
-              pageSizeOptions={[5, 10, 25, 50, 100]}
-              onPageChange={page => setPage(page)}
-              onPageSizeChange={pageSize => {
-                setPageSize(pageSize)
-                setPage(1)
-              }}
-            />
-          }
+          pagination={{
+            type: 'controlled',
+            page: page,
+            pageSize: pageSize,
+            total: mockData.length,
+            pageSizeOptions: [5, 10, 25, 50, 100],
+            onPageChange: page => setPage(page),
+            onPageSizeChange: pageSize => {
+              setPageSize(pageSize)
+              setPage(1)
+            },
+          }}
         />
       </div>
     )
@@ -414,7 +399,7 @@ export const PaginationWithRenderProp: Story = {
         <Table
           data={data}
           columns={basicColumns}
-          pagination={table => {
+          renderPagination={table => {
             // Example: log the current page index from the table param
             // You can use table.getState().pagination if using TanStack Table
             // For demonstration, we'll just render the pagination and show current page

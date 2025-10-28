@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { StyledTBody, StyledTR, StyledTD } from './StyledTable'
 import { useTableContext } from './useTableContext'
 import Skeleton from '@ui/Skeleton'
@@ -33,4 +34,4 @@ function TableSkeleton<TData>() {
   )
 }
 
-export default TableSkeleton
+export default memo(TableSkeleton)

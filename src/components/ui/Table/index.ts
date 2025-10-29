@@ -8,6 +8,7 @@ import TablePaginationControlled from './TablePaginationControlled'
 import TableComponent from './Table'
 import { useTableContext } from './useTableContext'
 import {
+  StyledTableContainer,
   StyledTable,
   StyledTHead,
   StyledTBody,
@@ -25,6 +26,7 @@ import {
   styledTDVariant,
 } from './StyledTable'
 import type {
+  StyledTableContainerProps,
   StyledTableProps,
   StyledTHeadProps,
   StyledTBodyProps,
@@ -44,6 +46,7 @@ interface TableComponent<TData extends RowData = any>
   TableFoot: typeof TableFoot
   TableEmpty: typeof TableEmpty
   TablePagination: typeof TablePaginationControlled
+  StyledTableContainer: typeof StyledTableContainer
   StyledTable: typeof StyledTable
   StyledTHead: typeof StyledTHead
   StyledTBody: typeof StyledTBody
@@ -63,6 +66,7 @@ Table.TableFoot = TableFoot as typeof TableFoot
 Table.TableEmpty = TableEmpty as typeof TableEmpty
 Table.TablePagination =
   TablePaginationControlled as typeof TablePaginationControlled
+Table.StyledTableContainer = StyledTableContainer as typeof StyledTableContainer
 Table.StyledTable = StyledTable as typeof StyledTable
 Table.StyledTHead = StyledTHead as typeof StyledTHead
 Table.StyledTBody = StyledTBody as typeof StyledTBody
@@ -74,6 +78,7 @@ Table.StyledTCaption = StyledTCaption as typeof StyledTCaption
 
 export type {
   TableProps,
+  StyledTableContainerProps,
   StyledTableProps,
   StyledTHeadProps,
   StyledTBodyProps,

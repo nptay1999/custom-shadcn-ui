@@ -10,6 +10,7 @@ import {
   type PaginationState,
   type Row,
   type RowData,
+  type SortingState,
   type Table,
   type TableOptions,
 } from '@tanstack/react-table'
@@ -53,6 +54,18 @@ type TExpandable<TData> = {
   getRowCanExpand?: (row: Row<TData>) => boolean
 }
 
+type TSorting = {
+  sortingState: SortingState
+  onSortingChange: (sorting: SortingState) => void
+  enableMultiSort?: boolean
+}
+
+type TScroll = {
+  x?: number | 'content'
+  y?: number
+  pingingHeader?: boolean
+}
+
 export interface TableProps<TData extends RowData, TValue = unknown> {
   data: Array<TData>
   columns: ColumnDef<TData, TValue>[]
@@ -77,9 +90,11 @@ export interface TableProps<TData extends RowData, TValue = unknown> {
     | React.ReactNode
   onPaginationChange?: (pagination: TPaginationState) => void
   filter?: boolean | ColumnFiltersState
+  sorting?: false | TSorting
   columnPinning?: ColumnPinningState
   expandable?: TExpandable<TData>
   virtualized?: boolean
+  scroll?: TScroll
 }
 
 const TableComponent = <TData extends RowData>({
@@ -93,9 +108,11 @@ const TableComponent = <TData extends RowData>({
   renderPagination,
   onPaginationChange,
   filter = false,
+  sorting = false,
   columnPinning = undefined,
   expandable,
   virtualized = false,
+  scroll = undefined,
 }: TableProps<TData>) => {
   // Props preprocessing
   const isNoPagination = pagination === undefined || pagination === false
@@ -114,6 +131,9 @@ const TableComponent = <TData extends RowData>({
   const [internalPagination, setInternalPagination] = useState<PaginationState>(
     { pageIndex: page - 1, pageSize }
   )
+  const [internalSorting, setInternalSorting] = useState<SortingState>(
+    typeof sorting === 'object' ? sorting.sortingState : []
+  )
   const tableContainerRef = useRef<HTMLDivElement>(null)
 
   // Functions
@@ -127,6 +147,18 @@ const TableComponent = <TData extends RowData>({
       page: newState.pageIndex + 1,
       pageSize: newState.pageSize,
     })
+  }
+
+  const handleSortingChange = (
+    updater: SortingState | ((old: SortingState) => SortingState)
+  ) => {
+    const newState =
+      typeof updater === 'function' ? updater(internalSorting) : updater
+
+    setInternalSorting(newState)
+    if (typeof sorting === 'object') {
+      sorting.onSortingChange(newState)
+    }
   }
 
   const filterConfig: Partial<TableOptions<TData>> = useMemo(() => {
@@ -144,6 +176,21 @@ const TableComponent = <TData extends RowData>({
       manualFiltering: true,
     }
   }, [filter])
+
+  const sortingConfig: Partial<TableOptions<TData>> = useMemo(() => {
+    if (sorting === false) {
+      return {}
+    }
+
+    return {
+      manualSorting: true,
+      enableMultiSort: sorting.enableMultiSort,
+      state: {
+        sorting: internalSorting,
+      },
+      onSortingChange: handleSortingChange,
+    }
+  }, [sorting, internalSorting])
 
   const paginationConfig: Partial<TableOptions<TData>> = useMemo(() => {
     // Check if pagination should be managed manually
@@ -193,10 +240,12 @@ const TableComponent = <TData extends RowData>({
     ...paginationConfig,
     ...filterConfig,
     ...expandableConfig,
+    ...sortingConfig,
     state: {
       ...paginationConfig.state,
       ...filterConfig.state,
       ...columnPinningConfig.state,
+      ...sortingConfig.state,
     },
   })
 
@@ -224,6 +273,10 @@ const TableComponent = <TData extends RowData>({
       border={border}
       loading={loading}
       renderExpanded={expandable?.renderExpanded}
+      isSorting={typeof sorting === 'object'}
+      isMultiSort={
+        typeof sorting === 'object' ? (sorting.enableMultiSort ?? false) : false
+      }
     >
       <div
         className={cn('rounded-md overflow-hidden mb-4', {
@@ -232,19 +285,30 @@ const TableComponent = <TData extends RowData>({
       >
         <StyledTableContainer
           ref={tableContainerRef}
-          className={cn({ 'relative h-[800px]': virtualized })}
+          className={cn(
+            (virtualized || scroll?.y) &&
+              css`
+                position: relative;
+                max-height: ${scroll?.y ?? '800'}px;
+              `
+          )}
         >
           <StyledTable
             className={cn(
-              !isEmpty(columnPinningConfig) ||
-                (virtualized &&
-                  css`
-                    min-width: ${table.getTotalSize()}px;
-                  `)
+              (!isEmpty(columnPinningConfig) || virtualized || scroll?.x) &&
+                css`
+                  min-width: ${typeof scroll?.x === 'number'
+                    ? scroll?.x
+                    : table.getTotalSize()}px;
+                `
             )}
           >
             {/** Table Header */}
-            <TableHead className={cn({ 'sticky top-0 z-1': virtualized })} />
+            <TableHead
+              className={cn({
+                'sticky top-0 z-1': virtualized || scroll?.pingingHeader,
+              })}
+            />
 
             {/** Table body */}
             {loading ? (

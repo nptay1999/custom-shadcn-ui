@@ -1,6 +1,7 @@
 import React from 'react'
 import cn from '@/utils/cn'
 import { tv, type VariantProps } from 'tailwind-variants'
+import { ChevronsUpDown } from 'lucide-react'
 
 interface StyledTableContainerProps extends React.ComponentProps<'div'> {
   ref?: React.Ref<HTMLDivElement>
@@ -328,6 +329,41 @@ const StyledTCaption = ({
   )
 }
 
+const iconSortingVariants = tv({
+  base: 'size-4 text-muted-foreground/60 group-hover/header:text-foreground transition-color duration-200',
+  variants: {
+    variant: {
+      asc: '[&>path:last-child]:text-primary',
+      desc: '[&>path:first-child]:text-primary',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    variant: false,
+  },
+})
+
+interface IconSortingProps
+  extends React.ComponentProps<'svg'>,
+    VariantProps<typeof iconSortingVariants> {
+  ref?: React.Ref<SVGSVGElement>
+}
+
+const IconSorting = ({
+  variant,
+  ref,
+  className,
+  ...props
+}: IconSortingProps) => {
+  return (
+    <ChevronsUpDown
+      ref={ref}
+      className={iconSortingVariants({ variant, className })}
+      {...props}
+    />
+  )
+}
+
 export type {
   StyledTableContainerProps,
   StyledTableProps,
@@ -350,6 +386,7 @@ export {
   StyledTR,
   StyledTD,
   StyledTCaption,
+  IconSorting,
   styledTHeadVariant,
   styledTBodyVariant,
   styledTCaptionVariant,
@@ -357,4 +394,5 @@ export {
   styledTHVariant,
   styledTRVariant,
   styledTDVariant,
+  iconSortingVariants,
 }

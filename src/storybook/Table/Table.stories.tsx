@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createColumnHelper, type ColumnDef } from '@tanstack/react-table'
 import Table from '@ui/Table'
 import { generateMockUsers, type TUserRecord } from '@/mock'
 import { useRef } from 'react'
-import type { Table as TableType } from '@tanstack/react-table'
+import type { SortingState, Table as TableType } from '@tanstack/react-table'
 import Button from '@ui/Button'
 import { Eye, Pencil, RefreshCcw, Trash } from 'lucide-react'
 
@@ -377,6 +377,183 @@ export const TableUsingRef: Story = {
           </p>
         </div>
         <Table ref={tableRef} data={mockData} columns={basicColumns} />
+      </div>
+    )
+  },
+}
+
+// ==================== Sorting ====================
+
+export const TableWithSorting: Story = {
+  render: () => {
+    const [mockData] = useState<TUserRecord[]>(generateMockUsers(50))
+    const [sorting, setSorting] = useState<SortingState>([
+      { id: 'firstName', desc: false },
+    ])
+
+    const dataAfterSorting = useMemo(() => {
+      if (!sorting.length) {
+        return mockData
+      }
+
+      // Clone the array to avoid mutating the original data
+      const sortedData = [...mockData]
+
+      // Apply sorting based on the sorting state
+      sorting.forEach(sort => {
+        const { id, desc } = sort
+
+        sortedData.sort((a, b) => {
+          const aValue = a[id as keyof TUserRecord]
+          const bValue = b[id as keyof TUserRecord]
+
+          // Handle null/undefined values
+          if (aValue == null) return 1
+          if (bValue == null) return -1
+
+          // String comparison
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            const comparison = aValue.localeCompare(bValue)
+            return desc ? -comparison : comparison
+          }
+
+          // Number comparison
+          if (typeof aValue === 'number' && typeof bValue === 'number') {
+            return desc ? bValue - aValue : aValue - bValue
+          }
+
+          // Fallback to string comparison
+          const comparison = String(aValue).localeCompare(String(bValue))
+          return desc ? -comparison : comparison
+        })
+      })
+
+      return sortedData
+    }, [mockData, sorting])
+
+    return (
+      <div>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">Table with Sorting</h3>
+          <p className="text-sm text-muted-foreground">
+            Click on column headers to sort the table.
+          </p>
+        </div>
+        <Table
+          data={dataAfterSorting}
+          columns={basicColumns}
+          sorting={{
+            sortingState: sorting,
+            onSortingChange: newSorting => {
+              setSorting(newSorting)
+            },
+          }}
+        />
+      </div>
+    )
+  },
+}
+
+// ==================== Multiple Sorting ====================
+
+export const TableWithMultipleSorting: Story = {
+  render: () => {
+    const [mockData] = useState<TUserRecord[]>(generateMockUsers(50))
+    const [sorting, setSorting] = useState<SortingState>([
+      { id: 'firstName', desc: false },
+      { id: 'age', desc: true },
+    ])
+
+    const dataAfterSorting = useMemo(() => {
+      if (!sorting.length) {
+        return mockData
+      }
+
+      // Clone the array to avoid mutating the original data
+      const sortedData = [...mockData]
+
+      // Apply sorting based on the sorting state
+      sorting.forEach(sort => {
+        const { id, desc } = sort
+
+        sortedData.sort((a, b) => {
+          const aValue = a[id as keyof TUserRecord]
+          const bValue = b[id as keyof TUserRecord]
+
+          // Handle null/undefined values
+          if (aValue == null) return 1
+          if (bValue == null) return -1
+
+          // String comparison
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            const comparison = aValue.localeCompare(bValue)
+            return desc ? -comparison : comparison
+          }
+
+          // Number comparison
+          if (typeof aValue === 'number' && typeof bValue === 'number') {
+            return desc ? bValue - aValue : aValue - bValue
+          }
+
+          // Fallback to string comparison
+          const comparison = String(aValue).localeCompare(String(bValue))
+          return desc ? -comparison : comparison
+        })
+      })
+
+      return sortedData
+    }, [mockData, sorting])
+
+    return (
+      <div>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">Table with Sorting</h3>
+          <p className="text-sm text-muted-foreground">
+            Click on column headers to sort the table.
+          </p>
+        </div>
+        <Table
+          data={dataAfterSorting}
+          columns={basicColumns}
+          sorting={{
+            sortingState: sorting,
+            onSortingChange: newSorting => {
+              setSorting(newSorting)
+            },
+            enableMultiSort: true,
+          }}
+        />
+      </div>
+    )
+  },
+}
+
+// ==================== Scroll ====================
+
+export const TableWithScroll: Story = {
+  render: () => {
+    const [mockData] = useState<TUserRecord[]>(generateMockUsers(50))
+
+    return (
+      <div>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">
+            Table with Scrollable area
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Demonstrates scrolling behavior in the table.
+          </p>
+        </div>
+        <Table
+          data={mockData}
+          columns={basicColumns}
+          pagination={false}
+          scroll={{
+            x: 'content',
+            y: 800,
+            pingingHeader: true,
+          }}
+        />
       </div>
     )
   },
